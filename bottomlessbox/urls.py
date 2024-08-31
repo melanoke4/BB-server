@@ -22,6 +22,7 @@ from bottomlessboxapi.views.category import CategoryViewSet
 from bottomlessboxapi.views.item import ItemViewSet
 from bottomlessboxapi.views.location import LocationViewSet
 from bottomlessboxapi.views.lore import LoreViewSet
+from bottomlessboxapi.views.review import ReviewViewSet
 from bottomlessboxapi.views.status import StatusViewSet
 from bottomlessboxapi.views.user import UserView
 
@@ -32,6 +33,7 @@ router.register(r'locations', LocationViewSet, basename='location')
 router.register(r'statuses', StatusViewSet, basename='status')
 router.register(r'categories', CategoryViewSet, basename='category')
 router.register(r'lores', LoreViewSet, basename='lore')
+router.register(r'reviews', ReviewViewSet, basename='review')
 
 
 urlpatterns = [
