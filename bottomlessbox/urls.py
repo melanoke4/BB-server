@@ -14,8 +14,30 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from rest_framework.routers import DefaultRouter
+from django.db import router
+from django.urls import include, path
+
+from bottomlessboxapi.views.category import CategoryViewSet
+from bottomlessboxapi.views.item import ItemViewSet
+from bottomlessboxapi.views.location import LocationViewSet
+from bottomlessboxapi.views.lore import LoreViewSet
+from bottomlessboxapi.views.status import StatusViewSet
+from bottomlessboxapi.views.user import UserView
+
+router = DefaultRouter(trailing_slash=False)
+router.register(r'items' , ItemViewSet, basename='item')
+router.register(r'users', UserView, basename='user')
+router.register(r'locations', LocationViewSet, basename='location')
+router.register(r'statuses', StatusViewSet, basename='status')
+router.register(r'categories', CategoryViewSet, basename='category')
+router.register(r'lores', LoreViewSet, basename='lore')
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api-auth/', include('rest_framework.urls')),
+    path('api/', include(router.urls)),
+    path('', include(router.urls)),
+    
 ]
