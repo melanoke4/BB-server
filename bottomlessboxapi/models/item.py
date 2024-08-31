@@ -12,4 +12,4 @@ class Item(models.Model):
     location = models.ForeignKey(Location, on_delete=models.SET_NULL, null=True)
     status = models.ForeignKey(Status, on_delete=models.SET_NULL, null=True)
     image_url = models.CharField(max_length=255)
-    categories = models.ManyToManyField(Category, related_name='items')
+    categories = models.ManyToManyField(Category, through='ItemCategory')
