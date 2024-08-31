@@ -2,9 +2,11 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-
 from bottomlessboxapi.models.item import Item
 from bottomlessboxapi.models.lore import Lore
+from django.core.exceptions import ObjectDoesNotExist
+from bottomlessboxapi.models.user import User
+
 
 class LoreViewSet(viewsets.ViewSet):
 
@@ -21,11 +23,6 @@ class LoreViewSet(viewsets.ViewSet):
     def create(self, request):
         serializer = LoreSerializer(data=request.data)
         if serializer.is_valid():
-            # Ensure the user owns the item they're adding lore to
-            item = get_object_or_404(Item, pk=serializer.validated_data['item'].id)
-            if item.user != request.user:
-                return Response({"detail": "You do not have permission to add lore to this item."},
-                                status=status.HTTP_403_FORBIDDEN)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -65,8 +62,3 @@ class LoreSerializer(serializers.ModelSerializer):
         model = Lore
         fields = ['id', 'item', 'content', 'created_at']
         read_only_fields = ['created_at']
-
-    def validate_content(self, value):
-        if len(value) < 10:
-            raise serializers.ValidationError("Lore content must be at least 10 characters long.")
-        return value

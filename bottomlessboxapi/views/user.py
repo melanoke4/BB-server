@@ -33,6 +33,12 @@ class UserView(ViewSet):
         user = get_object_or_404(User, pk=pk)
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    def list(self, request):
+        users = User.objects.all()
+        
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data)
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
