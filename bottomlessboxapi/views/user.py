@@ -5,6 +5,8 @@ from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import status
 from bottomlessboxapi.models.user import User
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 
 
 class UserView(ViewSet):
@@ -15,12 +17,11 @@ class UserView(ViewSet):
         return Response(serializer.data)
 
     def create(self, request):
-        user = User.objects.create(
-            username = request.data["username"],
-            email = request.data["email"]
-        )
-        serializer = UserSerializer(user)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def update(self, request, pk):
         user = User.objects.get(pk=pk)
