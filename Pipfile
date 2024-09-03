@@ -12,6 +12,9 @@ django-cors-headers = "==3.13.0"
 pylint-django = "==2.5.3"
 
 [dev-packages]
+debugpy = "*"
+pytest = "*"
+pytest-django = "*"
 
 [requires]
 python_version = "3.9"

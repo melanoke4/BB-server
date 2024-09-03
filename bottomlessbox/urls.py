@@ -36,6 +36,7 @@ router.register(r'lores', LoreViewSet, basename='lore')
 router.register(r'reviews', ReviewViewSet, basename='review')
 
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
