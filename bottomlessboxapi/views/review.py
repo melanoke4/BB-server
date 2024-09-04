@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404
 from bottomlessboxapi.models.item import Item
 from rest_framework import serializers
 from bottomlessboxapi.models.review import Review
+from bottomlessboxapi.models.user import User
 
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
@@ -28,7 +29,9 @@ class ReviewViewSet(viewsets.ModelViewSet):
         Ensure the associated item belongs to the current user.
         """
         instance = self.get_object()
-        if instance.item.user != request.user:
+        user_id = request.query_params.get('user_id')
+        user = User.objects.get(pk=user_id)
+        if instance.item.user != user:
             return Response({"detail": "You do not have permission to edit this review."},
                             status=status.HTTP_403_FORBIDDEN)
         return super().update(request, *args, **kwargs)
@@ -38,8 +41,10 @@ class ReviewViewSet(viewsets.ModelViewSet):
         Delete a review instance.
         Ensure the associated item belongs to the current user.
         """
+        user_id = request.query_params.get('user_id')
+        user = User.objects.get(pk=user_id)
         instance = self.get_object()
-        if instance.item.user != request.user:
+        if instance.item.user != user:
             return Response({"detail": "You do not have permission to delete this review."},
                             status=status.HTTP_403_FORBIDDEN)
         return super().destroy(request, *args, **kwargs)

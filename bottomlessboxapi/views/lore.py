@@ -38,8 +38,10 @@ class LoreViewSet(viewsets.ViewSet):
 
     def update(self, request, pk=None):
         lore = get_object_or_404(Lore, pk=pk)
+        user_id = request.query_params.get('user_id')
+        user = User.objects.get(pk=user_id)
         # Check if the user owns the item associated with this lore
-        if lore.item.user != request.user:
+        if lore.item.user != user:
             return Response({"detail": "You do not have permission to update this lore."},
                             status=status.HTTP_403_FORBIDDEN)
         serializer = LoreSerializer(lore, data=request.data, partial=True)
@@ -50,8 +52,10 @@ class LoreViewSet(viewsets.ViewSet):
 
     def destroy(self, request, pk=None):
         lore = get_object_or_404(Lore, pk=pk)
+        user_id = request.query_params.get('user_id')
+        user = User.objects.get(pk=user_id)
         # Check if the user owns the item associated with this lore
-        if lore.item.user != request.user:
+        if lore.item.user != user:
             return Response({"detail": "You do not have permission to delete this lore."},
                             status=status.HTTP_403_FORBIDDEN)
         lore.delete()

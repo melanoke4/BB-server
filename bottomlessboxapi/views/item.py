@@ -44,7 +44,9 @@ class ItemViewSet(viewsets.ViewSet):
             return Response({"error": "Location not found"}, status=status.HTTP_404_NOT_FOUND)
 
     def update(self, request, pk=None):
-        item = get_object_or_404(Item, pk=pk, user=request.user)
+        user_id = request.query_params.get('user_id')
+        user = User.objects.get(pk=user_id)
+        item = get_object_or_404(Item, pk=pk, user=user)
         serializer = ItemSerializer(item, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -52,7 +54,9 @@ class ItemViewSet(viewsets.ViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def destroy(self, request, pk=None):
-        item = get_object_or_404(Item, pk=pk, user=request.user)
+        user_id = request.query_params.get('user_id')
+        user = User.objects.get(pk=user_id)
+        item = get_object_or_404(Item, pk=pk, user=user)
         item.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
