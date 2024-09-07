@@ -20,6 +20,7 @@ from django.urls import include, path
 
 from bottomlessboxapi.views.category import CategoryViewSet
 from bottomlessboxapi.views.item import ItemViewSet
+from bottomlessboxapi.views.item_category import ItemCategoryViewSet
 from bottomlessboxapi.views.location import LocationViewSet
 from bottomlessboxapi.views.lore import LoreViewSet
 from bottomlessboxapi.views.review import ReviewViewSet
@@ -34,6 +35,7 @@ router.register(r'statuses', StatusViewSet, basename='status')
 router.register(r'categories', CategoryViewSet, basename='category')
 router.register(r'lores', LoreViewSet, basename='lore')
 router.register(r'reviews', ReviewViewSet, basename='review')
+router.register(r'item-categories', ItemCategoryViewSet, basename='item-category')
 
 
 
