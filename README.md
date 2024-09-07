@@ -15,4 +15,4 @@ Bottomless Box provides a digital solution for inventory management, allowing us
 
 Link to project board : https://github.com/users/melanoke4/projects/9/views/1
 
-Link to Loom video walkthrough of Postman :
+Link to Loom video walkthrough of Postman : https://www.loom.com/share/8a580099a270404b8c54865ae86b7f2d?sid=6b6afb4e-7ae1-431d-b3a6-95843a526b93
