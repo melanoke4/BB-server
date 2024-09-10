@@ -17,7 +17,7 @@ from django.contrib import admin
 from rest_framework.routers import DefaultRouter
 from django.db import router
 from django.urls import include, path
-
+from bottomlessboxapi.views.auth import check_user
 from bottomlessboxapi.views.category import CategoryViewSet
 from bottomlessboxapi.views.item import ItemViewSet
 from bottomlessboxapi.views.item_category import ItemCategoryViewSet
@@ -44,5 +44,6 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
     path('api/', include(router.urls)),
     path('', include(router.urls)),
+    path('checkuser', check_user, name='check_user'),
     
 ]
