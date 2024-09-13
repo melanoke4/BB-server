@@ -64,5 +64,5 @@ class LoreViewSet(viewsets.ViewSet):
 class LoreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lore
-        fields = ['id', 'item', 'content', 'created_at']
+        fields = ['id', 'content', 'created_at']
         read_only_fields = ['created_at']
