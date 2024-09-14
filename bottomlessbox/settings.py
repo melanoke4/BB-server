@@ -70,14 +70,14 @@ INSTALLED_APPS = [
 # You might have to add this entire variable if you're starting from scratch
 # CORS_ORIGIN_WHITELIST = env.list("CORS_ORIGIN_WHITELIST")
 
-CORS_ORIGIN_WHITELIST = [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    'https://main--bottomless-box.netlify.app',
-    'https://bottomless-box.netlify.app',
-]
+# CORS_ALLOWED_ORIGINS = [
+#     'http://localhost:3000',
+#     'http://127.0.0.1:3000',
+#     'https://main--bottomless-box.netlify.app',
+#     'https://bottomless-box.netlify.app',
+# ]
 
-CORS_ORIGIN_WHITELIST = os.environ.get('CORS_ORIGIN_WHITELIST', '').split(',')
+CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', '').split(',')
 
 
 CORS_ALLOW_HEADERS = list(default_headers) + [
