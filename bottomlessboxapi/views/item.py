@@ -1,3 +1,4 @@
+from urllib import request
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -12,7 +13,7 @@ from bottomlessboxapi.models.review import Review
 from bottomlessboxapi.models.user import User
 from bottomlessboxapi.views.lore import LoreSerializer
 from bottomlessboxapi.views.review import ReviewSerializer
-
+from rest_framework.decorators import action
 
 
 class ItemViewSet(viewsets.ViewSet):
@@ -34,39 +35,92 @@ class ItemViewSet(viewsets.ViewSet):
                 user = User.objects.get(pk=request.data["user_id"])
             except ObjectDoesNotExist:
                 return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-            
+
             serializer.save(user=user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, pk=None):
         try:
-            item = get_object_or_404(Item, pk=pk, user=request.query_params.get('user_id'))
+            item = get_object_or_404(
+                Item, pk=pk, user=request.query_params.get('user_id'))
             serializer = ItemSerializer(item)
             return Response(serializer.data)
         except ObjectDoesNotExist:
             return Response({"error": "Location not found"}, status=status.HTTP_404_NOT_FOUND)
 
-    def update(self, request, pk=None):
-        user_id = request.query_params.get('user_id')
-        user = User.objects.get(pk=user_id)
-        item = get_object_or_404(Item, pk=pk, user=user)
-        serializer = ItemSerializer(item, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def destroy(self, request, pk=None):
-        user_id = request.query_params.get('user_id')
-        user = User.objects.get(pk=user_id)
-        item = get_object_or_404(Item, pk=pk, user=user)
-        item.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    # def update(self, request, pk=None):
+    #     user_id = request.query_params.get('user_id')
+    #     user = User.objects.get(pk=user_id)
+    #     item = get_object_or_404(Item, pk=pk, user=user)
+    #     serializer = ItemSerializer(item, data=request.data, partial=True)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(serializer.data)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+    def update(self, request, pk=None):
+        try:
+            user_id = request.data.get('user_id')
+            if not user_id:
+                return Response({"error": "User ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+            user = get_object_or_404(User, pk=user_id)
+            item = get_object_or_404(Item, pk=pk, user=user)
+
+            serializer = ItemSerializer(item, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Item.DoesNotExist:
+            return Response({"error": "Item not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    # def destroy(self, request, pk=None):
+    #     user_id = request.query_params.get('user_id')
+    #     user = User.objects.get(pk=user_id)
+    #     item = get_object_or_404(Item, pk=pk, user=user)
+    #     item.delete()
+    #     return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    def destroy(self, request, pk=None):
+        try:
+            user_id = request.query_params.get('user_id')
+            if not user_id:
+                return Response({"error": "User ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+            user = get_object_or_404(User, pk=user_id)
+            item = get_object_or_404(Item, pk=pk, user=user)
+
+            item.delete()
+            return Response({"message": "Item deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Item.DoesNotExist:
+            return Response({"error": "Item not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=True, methods=['get'])
+    def get_single_item(self, request, pk=None):
+        user_id = request.query_params.get('user_id')
+        if not user_id:
+            return Response({"error": "User ID is required"}, status=400)
+
+        user = get_object_or_404(User, id=user_id)
+        item = get_object_or_404(Item, id=pk, user=user)
+        serializer = ItemSerializer(item)
+        return Response(serializer.data)
+
+
 class ItemSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(read_only=True)
-    categories = serializers.PrimaryKeyRelatedField(many=True, queryset=Category.objects.all())
+    categories = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Category.objects.all())
     category_names = serializers.SerializerMethodField()
     location_name = serializers.ReadOnlyField(source='location.name')
     status_name = serializers.ReadOnlyField(source='status.name')
@@ -86,16 +140,16 @@ class ItemSerializer(serializers.ModelSerializer):
         categories = validated_data.pop('categories', [])
         lore_data = validated_data.pop('lore', None)
         review_data = validated_data.pop('review', None)
-        
+
         item = Item.objects.create(**validated_data)
         item.categories.set(categories)
-        
+
         if lore_data:
             Lore.objects.create(item=item, **lore_data)
-        
+
         if review_data:
             Review.objects.create(item=item, **review_data)
-        
+
         # Refresh the item instance to include the newly created lore and review
         item.refresh_from_db()
         return item
@@ -112,12 +166,12 @@ class ItemSerializer(serializers.ModelSerializer):
         categories = validated_data.pop('categories', None)
         lore_data = validated_data.pop('lore', None)
         review_data = validated_data.pop('review', None)
-        
+
         instance = super().update(instance, validated_data)
-        
+
         if categories is not None:
             instance.categories.set(categories)
-        
+
         if lore_data:
             if instance.lore:
                 for attr, value in lore_data.items():
@@ -126,7 +180,7 @@ class ItemSerializer(serializers.ModelSerializer):
             else:
                 lore = Lore.objects.create(**lore_data)
                 instance.lore = lore
-        
+
         if review_data:
             if instance.review:
                 for attr, value in review_data.items():
@@ -135,6 +189,6 @@ class ItemSerializer(serializers.ModelSerializer):
             else:
                 review = Review.objects.create(**review_data)
                 instance.review = review
-        
+
         instance.save()
         return instance
