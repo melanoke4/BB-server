@@ -1,31 +1,29 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework import status
 
 from bottomlessboxapi.models.user import User
-
 
 @api_view(['POST'])
 def check_user(request):
     '''
-    Method arguments:
-      request -- The full HTTP request object
+    Check if a user exists based on the provided UID.
     '''
-    uid = request.data['uid']
+    uid = request.data.get('uid')
+    
+    if not uid:
+        return Response({'error': 'UID is required'}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Use the built-in authenticate method to verify
-    # authenticate returns the user object or None if no user is found
     user = User.objects.filter(uid=uid).first()
 
-    # If authentication was successful, respond with their token
-    if user is not None:
+    if user:
         data = {
             'id': user.pk,
             'username': user.username,
             'email': user.email,
             'uid': user.uid,
+            'valid': True
         }
-        return Response(data)
+        return Response(data, status=status.HTTP_200_OK)
     else:
-        # Bad login details were provided. So we can't log the user in.
-        data = { 'valid': False }
-        return Response(data)
+        return Response({'valid': False}, status=status.HTTP_404_NOT_FOUND)

@@ -15,6 +15,7 @@ import dj_database_url
 from pathlib import Path
 from environ import Env
 import environ
+from corsheaders.defaults import default_headers
 
 # NOTE: This line of code is already inthe settings.py file
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -68,6 +69,9 @@ INSTALLED_APPS = [
 
 # You might have to add this entire variable if you're starting from scratch
 CORS_ORIGIN_WHITELIST = env.list("CORS_ORIGIN_WHITELIST")
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    "content-type",
+]
 
 # UPDATE THIS
 MIDDLEWARE = [
