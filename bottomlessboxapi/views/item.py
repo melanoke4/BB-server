@@ -80,12 +80,30 @@ class ItemViewSet(viewsets.ViewSet):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    # def destroy(self, request, pk=None):
+    #     user_id = request.query_params.get('user_id')
+    #     user = User.objects.get(pk=user_id)
+    #     item = get_object_or_404(Item, pk=pk, user=user)
+    #     item.delete()
+    #     return Response(status=status.HTTP_204_NO_CONTENT)
+    
     def destroy(self, request, pk=None):
-        user_id = request.query_params.get('user_id')
-        user = User.objects.get(pk=user_id)
-        item = get_object_or_404(Item, pk=pk, user=user)
-        item.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        try:
+            user_id = request.query_params.get('user_id')
+            if not user_id:
+                return Response({"error": "User ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+            user = get_object_or_404(User, pk=user_id)
+            item = get_object_or_404(Item, pk=pk, user=user)
+
+            item.delete()
+            return Response({"message": "Item deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Item.DoesNotExist:
+            return Response({"error": "Item not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=True, methods=['get'])
     def get_single_item(self, request, pk=None):
