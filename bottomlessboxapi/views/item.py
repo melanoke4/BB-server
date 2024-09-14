@@ -76,7 +76,7 @@ class ItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Item
         fields = ['id', 'user', 'name', 'cost', 'purchase_date', 'categories', 'category_names',
-                  'location', 'location_name', 'status', 'status_name', 'image_url', 'lore', 'review']
+                  'location', 'location_name', 'status', 'status_name', 'image_url', 'lore', 'review', 'user_id']
         read_only_fields = ['id', 'user']
 
     def get_category_names(self, obj):
