@@ -113,14 +113,17 @@ WSGI_APPLICATION = 'bottomlessbox.wsgi.application'
 #     }
 # }
 
-DATABASES = {
-  'default': dj_database_url.config(
-    default='sqlite:///{path}/db.sqlite3'.format(path=BASE_DIR),
-    conn_max_age=600,
-    conn_health_checks=True,
-  )
-}
+# DATABASES = {
+#   'default': dj_database_url.config(
+#     default='sqlite:///{path}/db.sqlite3'.format(path=BASE_DIR),
+#     conn_max_age=600,
+#     conn_health_checks=True,
+#   )
+# }
 
+DATABASES = {
+    'default': dj_database_url.config(conn_max_age=600, ssl_require=True)
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
@@ -164,3 +167,4 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
